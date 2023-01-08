@@ -4,8 +4,8 @@
 
 # CHAR TABLE
 
-|CODE|CHAR
-|---|---
+|CODE|CHAR|CODE|CHAR|CODE|CHAR|CODE|CHAR|CODE|CHAR
+|---|---|---|---|---|---|---|---|---|---
 |00|\[SPACE\]|10|0|20|@|30|P|40|\`|50|p
 |01|!|11|1|21|A|31|Q|41|a|51|q
 |02|"|12|2|22|B|32|R|42|b|52|r
