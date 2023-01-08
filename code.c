@@ -224,9 +224,9 @@ int isjArray (char* str) {
 				sbCount--;
 			else if (*endValue == ']' && sbCount == 0 && !inString)
 				break;
-			else if (*endValue == '{' && !inString)
+			else if (*endValue == '<' && !inString)
 				cbCount++;
-			else if (*endValue == '}' && !inString)
+			else if (*endValue == '>' && !inString)
 				cbCount--;
 			else if (*endValue == ',' && !sbCount && !cbCount && !inString)
 				break;
@@ -256,19 +256,19 @@ int isjArray (char* str) {
 }
 int isjObject (char* str) {
 	char* start = str;
-	if (*str != '{')
+	if (*str != '<')
 		return 0;
-	while (*str != '}') {
-		int inString = 0, cbCount = 0, sbCount = 0; // " { [
+	while (*str != '>') {
+		int inString = 0, cbCount = 0, sbCount = 0; // " < [
 		char* endValue = str + 1;
 		while (*endValue != '\0') {
 			if (*endValue == '"')
 				inString = !inString;
-			else if (*endValue == '{' && !inString)
+			else if (*endValue == '<' && !inString)
 				cbCount++;
-			else if (*endValue == '}' && cbCount > 0 && !inString)
+			else if (*endValue == '>' && cbCount > 0 && !inString)
 				cbCount--;
-			else if (*endValue == '}' && !cbCount && !inString)
+			else if (*endValue == '>' && !cbCount && !inString)
 				break;
 			else if (*endValue == ':' && !cbCount && !inString)
 				break;
@@ -283,12 +283,12 @@ int isjObject (char* str) {
 		*endValue = endHolder;
 
 		if (elementType == jWHITESPACE &&
-			*str == '{' && 
-			*endValue == '}')
+			*str == '<' && 
+			*endValue == '>')
 			return endValue - start;
 
 		if (elementType != jSTRING ||
-			*endValue == '}')
+			*endValue == '>')
 			return 0;
 
 		str = endValue;
@@ -298,11 +298,11 @@ int isjObject (char* str) {
 		while (*endValue != '\0') {
 			if (*endValue == '"')
 				inString = !inString;
-			else if (*endValue == '{' && !inString)
+			else if (*endValue == '<' && !inString)
 				cbCount++;
-			else if (*endValue == '}' && cbCount > 0 && !inString)
+			else if (*endValue == '>' && cbCount > 0 && !inString)
 				cbCount--;
-			else if (*endValue == '}' && cbCount == 0 && !inString)
+			else if (*endValue == '>' && cbCount == 0 && !inString)
 				break;
 			else if (*endValue == '[' && !inString)
 				sbCount++;
@@ -398,9 +398,9 @@ char* findNextComma (char* start, char* end) {
 			sbCount++;
 		else if (*cur == ']' && !inString)
 			sbCount--;
-		else if (*cur == '{' && !inString)
+		else if (*cur == '<' && !inString)
 			cbCount++;
-		else if (*cur == '}' && !inString)
+		else if (*cur == '>' && !inString)
 			cbCount--;
 		else if (*cur == ',' && !inString && !cbCount && !sbCount)
 			return cur;
@@ -472,9 +472,9 @@ char* findNextColon (char* start, char* end) {
 			sbCount++;
 		else if (*cur == ']' && !inString)
 			sbCount--;
-		else if (*cur == '{' && !inString)
+		else if (*cur == '<' && !inString)
 			cbCount++;
-		else if (*cur == '}' && !inString)
+		else if (*cur == '>' && !inString)
 			cbCount--;
 		else if (*cur == ':' && !inString && !cbCount && !sbCount)
 			return cur;
@@ -512,7 +512,7 @@ jObject* getjObject(jNode* node) {
 		if (cur == NULL) {
 			*(node->rawdata + node->datalen - 1) = '\0';
 			object->values[i++] = getjNode(prev);
-			*(node->rawdata + node->datalen - 1) = '}';
+			*(node->rawdata + node->datalen - 1) = '>';
 			break;
 		} else {
 			*cur = '\0';
