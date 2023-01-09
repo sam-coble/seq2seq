@@ -1,7 +1,8 @@
 SEPERATOR = "%%%"
+TYPE = Float32
 
 function loadX(filename)
-	X = Vector{Array{Float32, 2}}()
+	X = Vector{Array{TYPE, 2}}()
 	f = open(filename)
 	s = ""
 	for line in readlines(f)
@@ -18,7 +19,7 @@ function loadX(filename)
 end
 
 function loady(filename)
-	y = Vector{Float32}()
+	y = Vector{TYPE}()
 	f = open(filename)
 	for line in readlines(f)
 		push!(y, Int(line[begin]) - 48)
@@ -28,17 +29,17 @@ function loady(filename)
 end
 
 function str2vec(str)
-	ret = Array{Float32, 2}(undef, 96, length(str))
+	ret = Array{TYPE, 2}(undef, length(str), 96)
 	i = 1
 	for ch in str
-		ret[:,i] = chr2vec(ch)
+		ret[i,:] = chr2vec(ch)
 		i += 1
 	end
 	return ret
 end
 
 function chr2vec(char)
-	ret = zeros(Float32, 96)
+	ret = zeros(TYPE, 96)
 	if char == '\n'
 		ret[96] = 1
 	else
