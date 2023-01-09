@@ -1,5 +1,6 @@
 SEPERATOR = "%%%"
 TYPE = Float32
+TYPE_Y = Int8
 
 function loadX(filename)
 	X = Vector{Array{TYPE, 2}}()
@@ -19,7 +20,7 @@ function loadX(filename)
 end
 
 function loady(filename)
-	y = Vector{TYPE}()
+	y = Vector{TYPE_Y}()
 	f = open(filename)
 	for line in readlines(f)
 		push!(y, Int(line[begin]) - 48)

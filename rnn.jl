@@ -49,7 +49,7 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 		z[l + 1,:] = Waa * a[l,:] + Wax * x[l,:]
 		a[l + 1,:] = ha(z[l+1,:])
 	end
-	zf = Wya * vcat(a, 1)
+	zf = Wya * vcat(a[k+1,:], 1)
 	yhat = hy(zf)
 	r = yhat - y
 	f = 0.5*sum(r.*r) # squared residual error
@@ -69,18 +69,18 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	for l in k:-1:1
 		for i in 1:d
 			for j in 1:m
-				gWax[i,j] += x[l, d] * dha(z[l+1,j] * backprop[i])
+				gWax[j,i] += x[l, d] * dha(z[l+1,j] * backprop[j])
 			end
 		end
 		for i in 1:m
 			for j in 1:m
-				gWaa[i,j] += a[l, j] * dha(z[l+1,i]) * backprop[i]
+				gWaa[j,i] += a[l, j] * dha(z[l+1,i]) * backprop[i]
 			end
 		end
 		newbackprop = zeros(TYPE, size(backprop))
 		for i in 1:m
-			for j in 1:a
-				newbackprop[i] += Wya[i, j] * dha(z[l+1,j]) * backprop[j]
+			for j in 1:m
+				newbackprop[i] += Waa[j, i] * dha(z[l+1,j]) * backprop[j]
 			end
 		end
 		backprop = newbackprop
