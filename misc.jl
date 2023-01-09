@@ -28,6 +28,14 @@ function loady(filename)
 	close(f)
 	return y
 end
+function unrolly(y_)
+	n = size(y_, 1)
+	y = zeros(TYPE_Y, n, maximum(y_)+1)
+	for i in 1:n
+		y[i,y_[i] + 1] = 1
+	end
+	return y
+end
 
 function str2vec(str)
 	ret = Array{TYPE, 2}(undef, length(str), 96)

@@ -3,15 +3,14 @@ using Printf
 
 include("rnn.jl")
 
-c = 2
 
-X = loadX("testX.txt")
-n = size(X, 1)
-y_ = loady("testy.txt")
-y = zeros(n, c)
-for i in 1:n
-	y[i,y_[i] + 1] = 1
-end
+X_train = loadX("data/examples_train_1.txt")
+y_train = unrolly(loady("data/labels_train_1.txt"))
+X_test = loadX("data/examples_test_1.txt")
+y_test = loady("data/labels_test_1.txt")
+(n,c) = size(y_train)
+t = size(y_test, 1)
+
 include("rnn.jl")
 
 # sgd
@@ -21,23 +20,26 @@ Wax = randn(nstate, (96 + 1))
 Wya = randn(c, nstate + 1)
 a0 = zeros(nstate)
 
-maxIter = 20
+maxIter = 10000
 stepSize = 1e-4
 
-for t in 1:maxIter
-	i = rand(1:n)
-	(f, gWaa, gWax, gWya, ga0) = bptt(Waa, Wax, Wya, a0, X[i], y[i,:])
+for i in 1:maxIter
+	r = rand(1:n)
+	(f, gWaa, gWax, gWya, ga0) = bptt(Waa, Wax, Wya, a0, X_train[r], y_train[r,:])
 	global Waa = Waa - stepSize * gWaa
 	global Wax = Wax - stepSize * gWax
 	global Wya = Wya - stepSize * gWya
 	global a0 = ga0 - stepSize * ga0
-	if t % (maxIter/20) == 0
-		@printf "ERROR AT ITERATION %d:\t%d\n" t f
+	if i % (maxIter/20) == 0
+		correct = 0
+		yhat = predict(X_test, Waa, Wax, Wya, a0)
+		for j in 1:t
+			if findmax(yhat[j,:])[1] == y_test[j]
+				correct += 1
+			end
+		end
+		@printf "ITERATION %d TEST ACCURACY:\t%d\n" i (correct/t)
+		@printf "ITERATION %d ERROR:\t%d\n" i f
 	end
 end
-
-@show Waa
-# @show Wax
-@show Wya
-@show a0
 
