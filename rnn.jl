@@ -53,10 +53,11 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	gWya = zeros(TYPE, size(Wya))
 	for i in 1:c
 		for j in 1:(m+1)
-			gWya[i,j] = err[i] * dhy(Wya[i,j]*a) * (j <= m ? a[k+1,j] : 1)
+			gWya[i,j] = err[i] * dhy(Wya[i,j]*(j <= m ? a[k+1,j] : 1)) * (j <= m ? a[k+1,j] : 1)
 		end
 	end
 	gWaa = zeros(TYPE, size(Waa))
+
 	gWax = zeros(TYPE, size(Wax))
 	ga0 = zeros(TYPE, size(a0))
 	return (f, gWaa, gWax, gWya, ga0)
