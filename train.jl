@@ -32,7 +32,7 @@ MAX_ITERATIONS = Int(10000/BATCH_SIZE)
 STEP_SIZE = 1e-4
 
 for i in 1:MAX_ITERATIONS
-	f_mean = 0
+	f_sum = 0
 	gWaa_sum = zeros(TYPE, size(Waa))
 	gWax_sum = zeros(TYPE, size(Wax))
 	gWya_sum = zeros(TYPE, size(Wya))
