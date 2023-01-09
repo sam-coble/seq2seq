@@ -17,7 +17,8 @@ end
 function predict(X, Waa, Wax, Wya, a0)
 	n = size(X, 1)
 	k = size.(X, 1)
-	X .= hcat.(X, ones.(TYPE, k))
+	# X .= hcat.(X, ones.(TYPE, k))
+	# @show size(X_test[1])
 	yhat = Vector{Vector{TYPE}}()
 	for xi in X
 		a = a0
@@ -26,7 +27,7 @@ function predict(X, Waa, Wax, Wya, a0)
 		for j in 1:k
 			a = ha(Waa * a + Wax * xi[j,:])
 		end
-		push!(yhat, hy(Wy * vcat(a,1)))
+		push!(yhat, hy(Wya * vcat(a,1)))
 	end
 	return yhat
 end
@@ -37,8 +38,8 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	(k, d) = size(x)
 	c = size(y, 1)
 	m = size(a0, 1)
-	x = hcat(x, ones(TYPE, k))
-	d += 1
+	# x = hcat(x, ones(TYPE, k))
+	# d += 1
 
 	### Forward propagation
 	z = Array{TYPE, 2}(undef, k + 1, m)
@@ -66,15 +67,20 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	gWaa = zeros(TYPE, size(Waa))
 	gWax = zeros(TYPE, size(Wax))
 	backprop = zeros(TYPE, size(a0))
+	for i in 1:m
+		for j in 1:c
+			backprop[i] += Wya[j, i] * dhy(zf[j]) * r[j]
+		end
+	end
 	for l in k:-1:1
 		for i in 1:d
 			for j in 1:m
-				gWax[j,i] += x[l, d] * dha(z[l+1,j] * backprop[j])
+				gWax[j,i] += x[l, d] * dha(z[l+1,j]) * backprop[j]
 			end
 		end
 		for i in 1:m
 			for j in 1:m
-				gWaa[j,i] += a[l, j] * dha(z[l+1,i]) * backprop[i]
+				gWaa[j,i] += a[l, i] * dha(z[l+1,j]) * backprop[j]
 			end
 		end
 		newbackprop = zeros(TYPE, size(backprop))
