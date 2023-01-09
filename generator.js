@@ -1,7 +1,8 @@
-const {readFileSync} = require('fs');
-const codeFile = "code.txt";
+const {readFileSync, writeFileSync} = require('fs');
+const SEPERATOR = "%%%"
+const codeFile = "code.c";
 const textFile = "text.txt";
-const data = readFileSync(codeFile, "utf8").split('\n');
+const code = readFileSync(codeFile, "utf8").split('\n');
 const text = readFileSync(textFile, "utf8").split('\n');
 
 function getRandomLine(code) {
@@ -54,7 +55,25 @@ function getRandomText(text) {
 	let rand = Math.floor(Math.random() * text.length);
 	return text.slice(rand, rand + 1 + Math.floor(Math.random() * 4)).join('\n');
 }
-// console.log(getRandomCode(data));
-console.log(getRandomText(text));
+function generateData(code, text, xfile, yfile, n, p) {
+	p = p ?? 0.5;
+	x = [];
+	y = [];
+	for (let i = 0; i < n; i++) {
+		if (Math.random() < p) {
+			y.push(0);
+			x.push(getRandomCode(code));
+		} else {
+			y.push(1);
+			x.push(getRandomText(text));
+		}
+	}
+	writeFileSync(xfile, x.join(`\n${SEPERATOR}\n`));
+	writeFileSync(yfile, y.join(`\n`));
+
+}
+// console.log(getRandomCode(code));
+// console.log(getRandomText(text));
+generateData(code, text, "examples1.txt", "labels1.txt", 1000, 0.5);
 
 
