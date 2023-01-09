@@ -74,6 +74,6 @@ function generateData(code, text, xfile, yfile, n, p) {
 }
 // console.log(getRandomCode(code));
 // console.log(getRandomText(text));
-generateData(code, text, "examples1.txt", "labels1.txt", 1000, 0.5);
+generateData(code, text, "examples_train_1.txt", "labels_train_1.txt", 5000, 0.5);
 
 
