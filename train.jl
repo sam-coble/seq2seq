@@ -51,7 +51,7 @@ for i in 1:MAX_ITERATIONS
 	global Waa = Waa - STEP_SIZE * gWaa_sum / BATCH_SIZE
 	global Wax = Wax - STEP_SIZE * gWax_sum / BATCH_SIZE
 	global Wya = Wya - STEP_SIZE * gWya_sum / BATCH_SIZE
-	global a0 = ga0 - STEP_SIZE * ga0_sum / BATCH_SIZE
+	global a0 = a0 - STEP_SIZE * ga0_sum / BATCH_SIZE
 	if i % (MAX_ITERATIONS/30) == 0
 		correct = 0
 		test_err = 0
