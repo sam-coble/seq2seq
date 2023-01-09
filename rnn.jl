@@ -35,12 +35,14 @@ end
 # for a single training example (x,y)
 function bptt(Waa, Wax, Wya, a0, x, y)
 	(k, d) = size(x)
+	c = size(y, 1)
+	m = size(a0, 1)
 	x = hcat(x, ones(TYPE, k))
 	### Forward propagation
-	a = Array{TYPE}(undef, k + 1, d)
-	a[1] = a0
+	a = Array{TYPE, 2}(undef, k + 1, m)
+	a[1,:] = a0
 	for j in 1:k
-		a[j + 1] = ha(Waa * a + Wax * xi[j,:])
+		a[j + 1,:] = ha(Waa * a[j,:] + Wax * xi[j,:])
 	end
 	r = hy(Wy * vcat(a,1)) - y
 	f = 0.5*sum(r.*r) # squared residual error
@@ -48,6 +50,16 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	### Backpropagation
 	dr = r
 	err = dr
+	gWya = zeros(TYPE, size(Wya))
+	for i in 1:c
+		for j in 1:(m+1)
+			gWya[i,j] = err[i] * dhy(Wya[i,j]*a) * (j <= m ? a[k+1,j] : 1)
+		end
+	end
+	gWaa = zeros(TYPE, size(Waa))
+	gWax = zeros(TYPE, size(Wax))
+	ga0 = zeros(TYPE, size(a0))
+	return (f, gWaa, gWax, gWya, ga0)
 end
 
 
