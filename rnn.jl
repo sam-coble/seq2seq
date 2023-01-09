@@ -38,13 +38,20 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	c = size(y, 1)
 	m = size(a0, 1)
 	x = hcat(x, ones(TYPE, k))
+	d += 1
+
 	### Forward propagation
+	z = Array{TYPE, 2}(undef, k + 1, m)
 	a = Array{TYPE, 2}(undef, k + 1, m)
-	a[1,:] = a0
-	for j in 1:k
-		a[j + 1,:] = ha(Waa * a[j,:] + Wax * xi[j,:])
+	z[1,:] = a0
+	a[1,:] = z[1,:]
+	for l in 1:k
+		z[l + 1,:] = Waa * a[l,:] + Wax * x[l,:]
+		a[l + 1,:] = ha(z[l+1,:])
 	end
-	r = hy(Wy * vcat(a,1)) - y
+	zf = Wya * vcat(a, 1)
+	yhat = hy(zf)
+	r = yhat - y
 	f = 0.5*sum(r.*r) # squared residual error
 
 	### Backpropagation
@@ -53,13 +60,32 @@ function bptt(Waa, Wax, Wya, a0, x, y)
 	gWya = zeros(TYPE, size(Wya))
 	for i in 1:c
 		for j in 1:(m+1)
-			gWya[i,j] = err[i] * dhy(Wya[i,j]*(j <= m ? a[k+1,j] : 1)) * (j <= m ? a[k+1,j] : 1)
+			gWya[i,j] = err[i] * dhy(zf[i]) * (j <= m ? a[k+1,j] : 1)
 		end
 	end
 	gWaa = zeros(TYPE, size(Waa))
-
 	gWax = zeros(TYPE, size(Wax))
-	ga0 = zeros(TYPE, size(a0))
+	backprop = zeros(TYPE, size(a0))
+	for l in k:-1:1
+		for i in 1:d
+			for j in 1:m
+				gWax[i,j] += x[l, d] * dha(z[l+1,j] * backprop[i])
+			end
+		end
+		for i in 1:m
+			for j in 1:m
+				gWaa[i,j] += a[l, j] * dha(z[l+1,i]) * backprop[i]
+			end
+		end
+		newbackprop = zeros(TYPE, size(backprop))
+		for i in 1:m
+			for j in 1:a
+				newbackprop[i] += Wya[i, j] * dha(z[l+1,j]) * backprop[j]
+			end
+		end
+		backprop = newbackprop
+	end
+	ga0 = backprop
 	return (f, gWaa, gWax, gWya, ga0)
 end
 
