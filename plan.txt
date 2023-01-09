@@ -1,6 +1,5 @@
 
 
-
 NETWORK:
 
       f        f        f      f        g
