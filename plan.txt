@@ -1,0 +1,19 @@
+
+
+
+NETWORK:
+
+      f        f        f      f        g
+START -> STATE -> STATE -> ... -> STATE -> CLASSES
+           ^        ^               ^
+           |        |               |
+         INPUT    INPUT           INPUT
+
+INPUT = 96-d
+STATE = 5-d
+START = 0 vector? 
+OUTPUT = 2 (text, code)
+
+f = (96 + 5 + 1) * (5) matrix = 510 parameters
+g = 5 * 2 matrix = 10 parameters
+
