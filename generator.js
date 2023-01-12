@@ -1,25 +1,44 @@
 const {readFileSync, writeFileSync} = require('fs');
 const SEPERATOR = "%%%"
 const codeFile = "code.c";
-const textFile = "data/labels_test_1.txt";
+// const textFile = "data/labels_test_1.txt";
+const textFile = "data/source/lang/english.txt"
 // const code = readFileSync(codeFile, "utf8").split('\n');
 const text = readFileSync(textFile, "utf8").split('\n');
 
 function replaceChar(ch) {
 	switch (ch.charCodeAt(0)) {
+		case 0x0d: 		// carrige feed
+			return '';
+		case 0xba: 		// º
+			return '';
+		case 0xc1: 		// Á
+			return 'A';
+		case 0xe1: 		// á
+		case 0xe2: 		// â
+		case 0xe3: 		// ã
 		case 0xe4: 		// ä
 			return 'a';
 		case 0xe6: 		// æ
 			return 'ae'
+		case 0xe8: 		// è
 		case 0xe9: 		// é
 		case 0xea: 		// ê
 			return 'e';
+		case 0xed: 		// í
+			return 'i';
+		case 0xf1: 		// ñ
+			return 'n';
+		case 0xf3: 		// ó
 		case 0xf6: 		// ö
 			return 'o';
+		case 0xfa: 		// ú
+		case 0xf9: 		// ù
 		case 0xfc: 		// ü
 			return 'u'
 		case 0x200a: 	// [hair space] [not actually there]
-			return ' '
+			return ' ';
+		case 0xad: 		// soft hypen
 		case 0x2013: 	// –
 		case 0x2014: 	// —
 			return '-';
@@ -124,6 +143,20 @@ function writeAsciified(text, outfile) {
 function strsplice(str, index, chrs2del, replacement) {
 	return str.substring(0, index) + replacement + str.substring(index + chrs2del);
 }
+function cleanFrequencyList(text, file) {
+	for (let i = 0; i < text.length; i++) {
+		text[i] = text[i].slice(0, text[i].indexOf('\t'));
+	}
+	writeFileSync(file, text.join('\n'));
+}
+function sampleWords(text, n, outfile) {
+	let ret = [];
+	for (let i = 0; i < n; i++) {
+		let r = Math.floor(Math.pow(4, Math.log(Math.random() * (text.length + 1)) / Math.log(4)));
+		ret.push(text[r]);
+	}
+	writeFileSync(outfile, ret.join('\n'));
+}
 // function writeAsciified(text, outfile) {
 // 	changes = 0;
 // 	for (let i = 0; i < text.length; i++) {
@@ -141,5 +174,6 @@ function strsplice(str, index, chrs2del, replacement) {
 // console.log(getRandomText(text));
 // generateData(code, text, "examples_train_1.txt", "labels_train_1.txt", 5000, 0.5);
 // findNonAscii(text);
-writeAsciified(text, textFile);
+// cleanFrequencyList(text, textFile)
+// writeAsciified(text, textFile);
 
