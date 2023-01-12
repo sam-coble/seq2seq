@@ -1,10 +1,12 @@
 const {readFileSync, writeFileSync} = require('fs');
 const SEPERATOR = "%%%"
-const codeFile = "code.c";
+// const codeFile = "code.c";
 // const textFile = "data/labels_test_1.txt";
-const textFile = "data/source/lang/english.txt"
+const textFile1 = "data/source/lang/english.txt";
+const textFile2 = "data/source/lang/spanish.txt";
 // const code = readFileSync(codeFile, "utf8").split('\n');
-const text = readFileSync(textFile, "utf8").split('\n');
+const text1 = readFileSync(textFile1, "utf8").split('\n');
+const text2 = readFileSync(textFile2, "utf8").split('\n');
 
 function replaceChar(ch) {
 	switch (ch.charCodeAt(0)) {
@@ -152,11 +154,35 @@ function cleanFrequencyList(text, file) {
 function sampleWords(text, n, outfile) {
 	let ret = [];
 	for (let i = 0; i < n; i++) {
-		let r = Math.floor(Math.pow(4, Math.log(Math.random() * (text.length + 1)) / Math.log(4)));
+		let r = Math.floor(Math.exp(Math.random() * Math.log(text.length + 1)));
 		ret.push(text[r]);
 	}
 	writeFileSync(outfile, ret.join('\n'));
 }
+
+function generateTrainAndTestUniform(texts, trexf, teexf, trlaf, telaf, n, p) {
+	p = Math.round(1/p);
+	trex = [];
+	trla = [];
+	teex = [];
+	tela = [];
+	for (let i = 0; i < n; i++) {
+		let text = Math.floor(Math.random() * texts.length);
+		let r = Math.floor(Math.random() * texts[text].length);
+		if (r % p == 0) {
+			teex.push(texts[text][r]);
+			tela.push(text);
+		} else {
+			trex.push(texts[text][r]);
+			trla.push(text);
+		}
+	}
+	writeFileSync(trexf, trex.join(`\n${SEPERATOR}\n`));
+	writeFileSync(trlaf, trla.join('\n'));
+	writeFileSync(teexf, teex.join(`\n${SEPERATOR}\n`));
+	writeFileSync(telaf, tela.join('\n'));
+}
+
 // function writeAsciified(text, outfile) {
 // 	changes = 0;
 // 	for (let i = 0; i < text.length; i++) {
@@ -176,4 +202,5 @@ function sampleWords(text, n, outfile) {
 // findNonAscii(text);
 // cleanFrequencyList(text, textFile)
 // writeAsciified(text, textFile);
-
+generateTrainAndTestUniform([text1, text2], "data/mixed/lang/examples_train_1.txt", "data/mixed/lang/examples_test_1.txt",
+		"data/mixed/lang/labels_train_1.txt", "data/mixed/lang/labels_test_1.txt", 40000, 0.2);

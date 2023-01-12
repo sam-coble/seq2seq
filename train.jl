@@ -4,16 +4,16 @@ using Printf
 include("rnn.jl")
 # TODO: Batches, L2-reg,
 
-X_train = loadX("data/examples_train_1.txt")
-y_train_ = loady("data/labels_train_1.txt")
+X_train = loadX("data/mixed/lang/examples_train_1.txt")
+y_train_ = loady("data/mixed/lang/labels_train_1.txt")
 y_train = unrolly(y_train_)
-X_test = loadX("data/examples_test_1.txt")
+X_test = loadX("data/mixed/lang/examples_test_1.txt")
 k_test = size.(X_test,1)
 X_test .= hcat.(X_test, ones.(TYPE, k_test))
 k_train = size.(X_train, 1)
 X_train .= hcat.(X_train, ones.(TYPE, k_train))
 # @show size(X_test[1])
-y_test_ = loady("data/labels_test_1.txt")
+y_test_ = loady("data/mixed/lang/labels_test_1.txt")
 y_test = unrolly(y_test_)
 (n,c) = size(y_train)
 t = size(y_test_, 1)
@@ -25,7 +25,7 @@ include("rnn.jl")
 
 # 98% test acc
 
-nstate = 5
+nstate = 10
 Waa = randn(nstate, nstate)
 # Waa = [-0.5892247418213822 -0.33780217872961366 0.26835257405820423 -1.5925884654242441 -0.5614736389062152; 0.6884119487736567 0.4749421193062428 -0.12853108111603806 1.2540930952974176 0.16766876463202193; -1.359469784772875 -1.4657480448006903 0.2594764354840852 -2.425361060390009 -1.2633284106833422; -0.5455703591736855 -0.007884238349909447 0.48045108031049644 0.467707422188827 0.0625601907718198; 0.8598485464935731 -1.1384108928278223 -1.4699837705648435 -0.6178532437409058 -0.6073700395832335]
 Wax = randn(nstate, (96 + 1))
@@ -37,7 +37,7 @@ a0 = randn(nstate)
 
 
 BATCH_SIZE = 10
-MAX_ITERATIONS = Int(round(10000/BATCH_SIZE))
+MAX_ITERATIONS = Int(round(100000/BATCH_SIZE))
 # MAX_ITERATIONS = 0
 STEP_SIZE = 7e-2
 
