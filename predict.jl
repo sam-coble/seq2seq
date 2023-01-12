@@ -14,10 +14,7 @@ function predictString(str)
 	push!(X_new, str2vec(str))
 	X_new .= hcat.(X_new, ones.(TYPE, size.(X_new, 1)))
 	yhat = predict(X_new, Waa, Wax, Wya, a0)
-	if yhat[1][1] > yhat[1][2]
-		print("PREDICTION IS CODE EXCERPT")
-	else
-		print("PREDICTION IS TEXT EXCERPT")
-	end
+	prediction = findmax(yhat[1])[2]
+	@printf "PREDICTION IS %d\n" prediction
 end
 
