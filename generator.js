@@ -14,7 +14,7 @@ function replaceChar(ch) {
 			return '';
 		case 0xba: 		// º
 			return '';
-		case 0xc1: 		// Á
+		case 0xc1: 		// Á 
 			return 'A';
 		case 0xe1: 		// á
 		case 0xe2: 		// â
