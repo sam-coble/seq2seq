@@ -90,10 +90,10 @@ for i in 1:MAX_ITERATIONS
 	end
 end
 
-# @show Waa
-# @show Wax
-# @show Wya
-# @show a0
+@show Waa
+@show Wax
+@show Wya
+@show a0
 
 
 correct = 0
