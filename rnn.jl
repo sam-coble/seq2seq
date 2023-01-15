@@ -132,7 +132,8 @@ end
 
 # Computes predictions for a set of examples X
 function predict(X::Vector{Matrix{T}}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
-	return decode.(encode.(X, model), model)
+	# return decode.(encode.(X, model), model)
+	return broadcast(x -> decode(encode(x, model)), X)
 end
 
 # Computes squared error (f) and gradient (g)
