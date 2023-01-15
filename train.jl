@@ -4,11 +4,8 @@ TYPE::DataType = Float32
 include("rnn.jl")
 # TODO: Batches, L2-reg,
 
-X_train::Vector{Array{TYPE, 2}} = loadX(TYPE, "data/mixed/lang/examples_train_1.txt")
-X_test::Vector{Array{TYPE, 2}} = loadX(TYPE, "data/mixed/lang/examples_test_1.txt")
-# bias 
-X_train .= hcat.(X_train, ones.(TYPE, size.(X_train, 1)))
-X_test .= hcat.(X_test, ones.(TYPE, size.(X_test,1)))
+X_train::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/lang/examples_train_1.txt")
+X_test::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/lang/examples_test_1.txt")
 
 n::Int16 = size(X_train, 1)
 t::Int16 = size(X_test, 1)
