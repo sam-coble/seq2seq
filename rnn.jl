@@ -60,6 +60,35 @@ function init_seq2seq(T::DataType, m::Integer, d::Integer)::seq2seq{T} where T <
 	)
 end
 
+function addGradients(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
+	return seq2seq_grad{T}(
+		g1.a0 + g2.a0,
+		g1.Waa + g2.Waa,
+		g1.Wax + g2.Wax,
+		g1.ba + g2.ba,
+		g1.Wbb + g2.Wbb,
+		g1.Wby + g2.Wby,
+		g1.bb + g2.bb,
+		g1.Wyb + g2.Wyb,
+		g1.by + g2.by
+	)
+end
+function addGradent(model::seq2seq{T}, g::seq2seq_grad{T})::seq2seq{T}
+	return seq2seq{T}(
+		model.m,
+		model.d,
+		model.a0 + g.a0,
+		model.Waa + g.Waa,
+		model.Wax + g.Wax,
+		model.ba + g.ba,
+		model.Wbb + g.Wbb,
+		model.Wby + g.Wby,
+		model.bb + g.bb,
+		model.Wyb + g.Wyb,
+		model.by + g.by
+	)
+end
+
 function encode(X::Matrix{T}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
 	(k, d) = size(X)
 	a = model.a0
