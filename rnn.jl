@@ -27,7 +27,7 @@ mutable struct seq2seq{T<:AbstractFloat}
 	by::T
 end
 
-function init_seq2seq(T, m, d) where T <: AbstractFloat
+function init_seq2seq(T::DataType, m::Int, d::Int)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
@@ -43,7 +43,7 @@ function init_seq2seq(T, m, d) where T <: AbstractFloat
 	)
 end
 
-function encode(X::Vector{Vector{T}}, model::seq2seq{T}) where T <: AbstractFloat
+function encode(X::Vector{Vector{T}}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
 	(k, d) = size(X)
 	a = model.a0
 	for layer in 1:k
@@ -52,7 +52,7 @@ function encode(X::Vector{Vector{T}}, model::seq2seq{T}) where T <: AbstractFloa
 	return a
 end
 
-function decode(b0::Vector{T}, model::seq2seq{T}) where T <: AbstractFloat
+function decode(b0::Vector{T}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
 	BOS = zeros(T, model.d)
 	BOS[model.d - 1] = 1
 	BOS
