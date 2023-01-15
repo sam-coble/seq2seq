@@ -95,15 +95,15 @@ function subGradient(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2se
 		model.m,
 		model.d,
 		model.MAX_OUTPUTS,
-		model.a0 + g.a0 * stepSize,
-		model.Waa + g.Waa * stepSize,
-		model.Wax + g.Wax * stepSize,
-		model.ba + g.ba * stepSize,
-		model.Wbb + g.Wbb * stepSize,
-		model.Wby + g.Wby * stepSize,
-		model.bb + g.bb * stepSize,
-		model.Wyb + g.Wyb * stepSize,
-		model.by + g.by * stepSize
+		model.a0 - g.a0 * stepSize,
+		model.Waa - g.Waa * stepSize,
+		model.Wax - g.Wax * stepSize,
+		model.ba - g.ba * stepSize,
+		model.Wbb - g.Wbb * stepSize,
+		model.Wby - g.Wby * stepSize,
+		model.bb - g.bb * stepSize,
+		model.Wyb - g.Wyb * stepSize,
+		model.by - g.by * stepSize
 	)
 end
 
