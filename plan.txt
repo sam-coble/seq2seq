@@ -14,6 +14,6 @@ x/y = 28-d (a-z,BOS,EOS)
 a = 100-d
 
 
-ai = Waa(ai-1) + Wax(xi) + ba
-bi = Wbb(bi-1) + Wby(yi-1) + bb
-yi = Wyb(bi) + by
+ai = ha( Waa(ai-1) + Wax(xi) + ba )
+bi = hb( Wbb(bi-1) + Wby(yi-1) + bb )
+yi = hy( Wyb(bi) + by )

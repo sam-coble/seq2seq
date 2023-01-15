@@ -47,7 +47,7 @@ function encode(X::Vector{Vector{T}}, model::seq2seq{T})::Vector{T} where T <: A
 	(k, d) = size(X)
 	a = model.a0
 	for layer in 1:k
-		a = model.Waa * a + model.Wax * X[layer,:]
+		a = ha( model.Waa * a + model.Wax * X[layer,:] )
 	end
 	return a
 end
@@ -60,8 +60,8 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{T} where T <: Abstract
 	push!(y, BOS)
 	b = b0
 	while true
-		b = model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb
-		push!(y, model.yb * b + model.by)
+		b = hb( model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb )
+		push!(y, hy( model.yb * b + model.by ))
 		if findmax(y[lastindex(y)])[2] == model.d
 			break
 		end
