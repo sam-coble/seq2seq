@@ -7,7 +7,7 @@ NETWORK:
 a0 -> a1 -> a2 -> ... -> ak/b0(lvr) -> b1 -> b2 -> ... -> bl
       ^     ^            ^             ^     ^            ^
       |     |            |             |     |            |
-      x1    x2          EOS           BOS    y1          yl-1
+      x1    x2          EOS         y0(BOS)  y1          yl-1
 
 
 x/y = 28-d (a-z,BOS,EOS)
