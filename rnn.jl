@@ -13,6 +13,22 @@ function dhy(z)
 	return (sech.(z)).^2
 end
 
+
+function init_seq2seq(m, d)
+	return (
+		randn(m), 		# a0
+		randn(m, m), 	# Waa
+		randn(m, d),	# Wax
+		randn(1)[1],	# ba
+		randn(m, m), 	# Wbb
+		randn(m, d), 	# Wby
+		randn(1)[1],	# bb
+		randn(d, m), 	# Wyb
+		randn(1)[1] 	# by
+	)
+
+end
+
 # Computes predictions for a set of examples X
 function predict(X, Waa, Wax, Wya, a0)
 	n = size(X, 1)
