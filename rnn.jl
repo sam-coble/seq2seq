@@ -130,7 +130,7 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: 
 		outputs += 1
 		if findmax(y[lastindex(y)])[2] == model.d
 			break
-		elseif outputs >= MAX_OUTPUTS
+		elseif outputs >= model.MAX_OUTPUTS
 			break
 		end
 	end
