@@ -108,21 +108,21 @@ function encode(X::Matrix{T}, model::seq2seq{T})::Vector{T} where T <: AbstractF
 	(k, d) = size(X)
 	a = model.a0
 	for layer in 1:k
-		a = ha( model.Waa * a + model.Wax * X[layer,:] )
+		a = ha.( model.Waa * a + model.Wax * X[layer,:] )
 	end
 	return a
 end
 
-function decode(b0::Vector{T}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
+function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
 	BOS = zeros(T, model.d)
 	BOS[model.d - 1] = 1
 	BOS
-	y = Vector{T}()
+	y = Vector{Vector{T}}()
 	push!(y, BOS)
 	b = b0
 	while true
-		b = hb( model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb )
-		push!(y, hy( model.yb * b + model.by ))
+		b = hb.( model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb )
+		push!(y, hy.( model.yb * b + model.by ))
 		if findmax(y[lastindex(y)])[2] == model.d
 			break
 		end
@@ -133,7 +133,7 @@ end
 # Computes predictions for a set of examples X
 function predict(X::Vector{Matrix{T}}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
 	# return decode.(encode.(X, model), model)
-	return broadcast(x -> decode(encode(x, model)), X)
+	return broadcast(x -> decode(encode(x, model), model), X)
 end
 
 # Computes squared error (f) and gradient (g)

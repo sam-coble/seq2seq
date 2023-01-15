@@ -48,7 +48,7 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 			yhat = predict(X_train, model)
 			train_err::T = 0
 			for j in 1:n
-				train_err += sum((yhat[j] - y_train[j,:]).^2)
+				train_err += sum((yhat[j] - X_train[j,:]).^2)
 			end
 			train_err /= n
 			@printf "ITERATION: %d\tTRAIN ERR: %f\tTEST ERR: %f\n" i  train_err test_err
@@ -58,4 +58,4 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 	@show model
 end
 
-train(Float64, 10000, 10, 7e-2, 12, 100)
+train(Float64, 300, 10, 7e-2, 12, 100)
