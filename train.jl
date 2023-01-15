@@ -4,8 +4,8 @@ const TYPE::DataType = Float32
 include("rnn.jl")
 # TODO: Batches, L2-reg,
 
-const X_train::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/lang/examples_train_1.txt")
-const X_test::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/lang/examples_test_1.txt")
+const X_train::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/words_train_1.txt")
+const X_test::Vector{Matrix{TYPE}} = loadX(TYPE, "data/mixed/words_test_1.txt")
 
 const n::Int16 = size(X_train, 1)
 const t::Int16 = size(X_test, 1)
@@ -28,7 +28,7 @@ const BATCH_SIZE::Int32 = 50
 const MAX_ITERATIONS::Int32 = Int32(round(100000/BATCH_SIZE))
 const STEP_SIZE::TYPE = 7e-2
 
-@printf "RUNNING WITH STEP_SIZE=%f, BATCH_SIZE=%d, ITERATIONS=%d" STEP_SIZE BATCH_SIZE MAX_ITERATIONS
+@printf "RUNNING WITH STEP_SIZE=%f, BATCH_SIZE=%d, ITERATIONS=%d, m=%d, d=%d\n" STEP_SIZE BATCH_SIZE MAX_ITERATIONS m d
 for i::Int32 in 1:MAX_ITERATIONS
 	f_sum = 0
 	grad_sum::seq2seq_grad{TYPE} = emptyGrad(TYPE, m, d)
@@ -37,9 +37,9 @@ for i::Int32 in 1:MAX_ITERATIONS
 		r = rand(1:n)
 		(f::TYPE, grad::seq2seq_grad{TYPE}) = bptt(X_train[r], X_train[r], model, MAX_OUTPUTS)
 		f_sum += f
-		grad_sum = sumGrads(grad_sum, grad)
+		grad_sum = sumGrads(TYPE, grad_sum, grad)
 	end
-	global model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
+	global model = subGradient(TYPE, model, grad_sum, STEP_SIZE / BATCH_SIZE)
 
 	if i % Int32(round(MAX_ITERATIONS/30)) == 0
 		test_err = 0

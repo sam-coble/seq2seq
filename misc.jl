@@ -1,4 +1,4 @@
-function loadX(T::DataType, filename::String)::Vector{Matrix{T}} where T <: AbstractFloat
+function loadX(::Type{T}, filename::String)::Vector{Matrix{T}} where T <: AbstractFloat
 	X = Vector{Matrix{T}}()
 	f = open(filename)
 	for line in readlines(f)
@@ -8,14 +8,14 @@ function loadX(T::DataType, filename::String)::Vector{Matrix{T}} where T <: Abst
 	return X
 end
 
-function str2vec(T::DataType, str::String)::Matrix{T} where T <: AbstractFloat
+function str2vec(::Type{T}, str::String)::Matrix{T} where T <: AbstractFloat
 	ret = Matrix{T}(undef, length(str) + 1, 28)
 	i = 1
 	for ch in str
 		ret[i,:] = chr2vec(T, ch)
 		i += 1
 	end
-	ret[i] = begin
+	ret[i,:] = begin
 		EOS = zeros(T, 28)
 		EOS[28] = 1
 		EOS
@@ -23,7 +23,7 @@ function str2vec(T::DataType, str::String)::Matrix{T} where T <: AbstractFloat
 	return ret
 end
 
-function chr2vec(T::DataType, char::Char)::Vector{T} where T <: AbstractFloat
+function chr2vec(::Type{T}, char::Char)::Vector{T} where T <: AbstractFloat
 	ret = zeros(T, 28)
 	ret[Int(char) - 96] = 1
 	return ret

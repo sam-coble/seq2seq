@@ -1,26 +1,28 @@
 include("misc.jl")
 
-function ha(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return tanh.(z)
+function ha(z::T) where T <: AbstractFloat
+	return tanh(z)
 end
-function dha(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return (sech.(z)).^2
+function dha(z::T) where T <: AbstractFloat
+	return (sech(z))^2
 end
-function hb(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return tanh.(z)
+function hb(z::T) where T <: AbstractFloat
+	return tanh(z)
 end
-function dhb(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return (sech.(z)).^2
-function hy(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return tanh.(z)
+function dhb(z::T) where T <: AbstractFloat
+	return (sech(z))^2
 end
-function dhy(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
-	return (sech.(z)).^2
+function hy(z::T) where T <: AbstractFloat
+	return tanh(z)
+end
+function dhy(z::T) where T <: AbstractFloat
+	return (sech(z))^2
 end
 
+
 mutable struct seq2seq{T<:AbstractFloat}
-	const m::Int32,
-	const d::Int32,
+	const m::Int32
+	const d::Int32
 	a0::Vector{T}
 	Waa::Matrix{T}
 	Wax::Matrix{T}
@@ -44,7 +46,7 @@ struct seq2seq_grad{T<:AbstractFloat}
 	by::Vector{T}
 end
 
-function init_seq2seq(T::DataType, m::Int32, d::Int32)::seq2seq{T} where T <: AbstractFloat
+function init_seq2seq(::Type{T}, m::Int32, d::Int32)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
@@ -59,21 +61,21 @@ function init_seq2seq(T::DataType, m::Int32, d::Int32)::seq2seq{T} where T <: Ab
 		randn(T, d) 	# by
 	)
 end
-function emptyGrad(T::DataType, m::Int32, d::Int32)::seq2seq_grad{T} where T <: AbstractFloat
+function emptyGrad(::Type{T}, m::Int32, d::Int32)::seq2seq_grad{T} where T <: AbstractFloat
 	return seq2seq_grad{T}(
 		zeros(T, m),
 		zeros(T, m, m),
 		zeros(T, m, d),
-		zeros(T, m)
-		zeros(T, m, m)
-		zeros(T, m, d)
+		zeros(T, m),
+		zeros(T, m, m),
+		zeros(T, m, d),
 		zeros(T, m),
 		zeros(T, d, m),
 		zeros(T, d)
 	)
 end
 
-function sumGrads(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
+function sumGrads(::Type{T}, g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T} where T <: AbstractFloat
 	return seq2seq_grad{T}(
 		g1.a0 + g2.a0,
 		g1.Waa + g2.Waa,
@@ -86,7 +88,7 @@ function sumGrads(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
 		g1.by + g2.by
 	)
 end
-function subGradent(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq{T}
+function subGradient(::Type{T}, model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		model.m,
 		model.d,
@@ -98,7 +100,7 @@ function subGradent(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq
 		model.Wby + g.Wby * stepSize,
 		model.bb + g.bb * stepSize,
 		model.Wyb + g.Wyb * stepSize,
-		model.by + g.b * stepSizey
+		model.by + g.by * stepSize
 	)
 end
 
@@ -135,18 +137,18 @@ end
 
 # Computes squared error (f) and gradient (g)
 # for a single training example (x,y)
-function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)::seq2seq_grad{T} where T <: AbstractFloat
-	const k = size(x, 1)
+function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)::Tuple{T, seq2seq_grad{T}} where T <: AbstractFloat
+	local k::Int32 = size(x, 1)
 
 	### Forward propagation
 	## over encoder
 	za = Vector{Vector{T}}(undef, k+1)
 	a = Vector{Vector{T}}(undef, k+1)
-	za[1] = a0
-	a[1] = z[1]
+	za[1] = model.a0
+	a[1] = za[1]
 	for l in 1:k
-		za[l + 1] = model.Waa * a[l] + model.Wax * x[l] + model.ba
-		a[l + 1] = ha(za[l+1])
+		za[l + 1] = model.Waa * a[l] + model.Wax * x[l,:] + model.ba
+		a[l + 1] = ha.(za[l+1])
 	end
 	zb = Vector{Vector{T}}()
 	b = Vector{Vector{T}}()
@@ -164,22 +166,22 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 	## over decoder
 	outputs::Int32 = 0
 	while true
-		push!(zb, model.Wbb * b[lastindex(b)] + model.by * yhat[lastindex(yhat)] + model.bb)
-		push!(b, hb(zb[lastindex(zb)]))
+		push!(zb, model.Wbb * b[lastindex(b)] + model.Wby * yhat[lastindex(yhat)] + model.bb)
+		push!(b, hb.(zb[lastindex(zb)]))
 		push!(zyhat, model.Wyb * b[lastindex(b)] + model.by)
-		push!(yhat, hy(zyhat[lastindex(zhat)]))
+		push!(yhat, hy.(zyhat[lastindex(zyhat)]))
 		outputs += 1
-		if finxmax(yhat[lastindex(yhat)])[2] == model.d - 1
+		if findmax(yhat[lastindex(yhat)])[2] == model.d - 1
 			break
-		else if outputs >= MAX_OUTPUTS
+		elseif outputs >= MAX_OUTPUTS
 			break
 		end
 	end
 
 
 	### calculate error
-	const r::Vector{Vector{T}} = Vector{Vector{T}}(undef, size(yhat, 1) - 1)
-	const EOS::Vector{T} = begin
+	local r::Vector{Vector{T}} = Vector{Vector{T}}(undef, size(yhat, 1) - 1)
+	local EOS::Vector{T} = begin
 		EOS = zeros(T, model.d)
 		EOS[model.d] = 1
 		EOS
@@ -188,29 +190,29 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 		if i > size(y, 1)
 			r[i] = yhat[i+1] - EOS
 		else
-			r[i] = yhat[i+1] - y[i] 
+			r[i] = yhat[i+1] - y[i,:] 
 		end
 	end
 
 	# squared residual error
 	f::T = 0
-	for i in 1:size(r)
+	for i in 1:size(r, 1)
 		f += 0.5 * sum(r[i].*r[i])
 	end
 
 
 	### Backpropagation
-	const gWaa::Matrix{T} = zeros(T, model.m, model.m)
-	const gWax::Matrix{T} = zeros(T, model.m, model.d)
-	const gba::Vector{T} = zeros(T, model.m)
-	const gWbb::Matrix{T} = zeros(T, model.m, model.m)
-	const gWby::Matrix{T} = zeros(T, model.m, model.d)
-	const gbb::Vector{T} = zeros(T, model.m)
-	const gWyb::Matrix{T} = zeros(T, model.d, model.m)
-	const gby::Vector{T} = zeros(T, model.d)
+	local gWaa::Matrix{T} = zeros(T, model.m, model.m)
+	local gWax::Matrix{T} = zeros(T, model.m, model.d)
+	local gba::Vector{T} = zeros(T, model.m)
+	local gWbb::Matrix{T} = zeros(T, model.m, model.m)
+	local gWby::Matrix{T} = zeros(T, model.m, model.d)
+	local gbb::Vector{T} = zeros(T, model.m)
+	local gWyb::Matrix{T} = zeros(T, model.d, model.m)
+	local gby::Vector{T} = zeros(T, model.d)
 
 
-	const backprop_y::Vector{T} = zeros(T, model.d)
+	local backprop_y::Vector{T} = zeros(T, model.d)
 	backprop_ba::Vector{T} = zeros(T, model.m)
 
 	## over decoder
@@ -223,7 +225,7 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 			backprop_y[j] += r[l][j]
 		end
 		# backprop_ba
-		const new_backprop_ba::Vector{T} = zeros(T, model.m)
+		local new_backprop_ba::Vector{T} = zeros(T, model.m)
 		for j in 1:model.m
 			for i in 1:model.m
 				new_backprop_ba[j] += model.Wbb[i, j] * dhb(zb[l + 1][i]) * backprop_ba[i]
@@ -275,7 +277,7 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 		# gWax
 		for j in 1:model.d
 			for i in 1:model.m
-				gWax[i, j] += backprop_ba[i] * dha(za[l + 1][i]) * x[l][j]
+				gWax[i, j] += backprop_ba[i] * dha(za[l + 1][i]) * x[l,j]
 			end
 		end
 		# gba
@@ -285,11 +287,11 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 	end
 
 	# leftover backprop is initial state
-	const a0 = backprop_ba
+	local ga0 = backprop_ba
 
 
 	# return error + gradient
-	return (f, seq2seq_grad(ga0, gWaa, gWax, gba, gWbb, gWby, gbb, gWyb, gby))
+	return (f, seq2seq_grad{T}(ga0, gWaa, gWax, gba, gWbb, gWby, gbb, gWyb, gby))
 end
 
 
