@@ -1,5 +1,5 @@
-# RNN multi-purpose text classifier by scratch
-For use in parseing out inline code excerpts
+# Sequence-to-sequence RNN autoencoder
+from scratch in Julia
 
 
 ### CHAR TABLE
@@ -23,7 +23,3 @@ For use in parseing out inline code excerpts
 |0d|-|1d|=|2d|M|3d|\]|4d|m|5d|}
 |0e|.|1e|>|2e|N|3e|^|4e|n|5e|\~
 |0f|/|1f|?|2f|O|3f|\_|4f|o|5f|\[NEWLINE\]
-
-
-## Data sources
-text taken from https://www.gutenberg.org/cache/epub/69739/pg69739-images.html
