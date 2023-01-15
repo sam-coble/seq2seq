@@ -43,7 +43,7 @@ function init_seq2seq(T::DataType, m::Int, d::Int)::seq2seq{T} where T <: Abstra
 	)
 end
 
-function encode(X::Vector{Vector{T}}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
+function encode(X::Array{T, 2}, model::seq2seq{T})::Vector{T} where T <: AbstractFloat
 	(k, d) = size(X)
 	a = model.a0
 	for layer in 1:k
@@ -70,22 +70,8 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{T} where T <: Abstract
 end
 
 # Computes predictions for a set of examples X
-function predict(X, Waa, Wax, Wya, a0)
-	n = size(X, 1)
-	k = size.(X, 1)
-	# X .= hcat.(X, ones.(TYPE, k))
-	# @show size(X_test[1])
-	yhat = Vector{Vector{TYPE}}()
-	for xi in X
-		a = a0
-		(k, d) = size(xi)
-		a = a0
-		for j in 1:k
-			a = ha(Waa * a + Wax * xi[j,:])
-		end
-		push!(yhat, hy(Wya * vcat(a,1)))
-	end
-	return yhat
+function predict(X::Vector{Array{T, 2}}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
+	
 end
 
 # Computes squared error (f) and gradient (g)
