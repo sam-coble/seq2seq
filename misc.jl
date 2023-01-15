@@ -1,5 +1,5 @@
-function loadX(T::DataType, filename::String)::Vector{Array{T, 2}} where T <: AbstractFloat
-	X = Vector{Array{T, 2}}()
+function loadX(T::DataType, filename::String)::Vector{Matrix{T}} where T <: AbstractFloat
+	X = Vector{Matrix{T}}()
 	f = open(filename)
 	for line in readlines(f)
 		push!(X, str2vec(T, line))
@@ -8,8 +8,8 @@ function loadX(T::DataType, filename::String)::Vector{Array{T, 2}} where T <: Ab
 	return X
 end
 
-function str2vec(T::DataType, str::String)::Array{T, 2} where T <: AbstractFloat
-	ret = Array{T, 2}(undef, length(str) + 1, 28)
+function str2vec(T::DataType, str::String)::Matrix{T} where T <: AbstractFloat
+	ret = Matrix{T}(undef, length(str) + 1, 28)
 	i = 1
 	for ch in str
 		ret[i,:] = chr2vec(T, ch)
