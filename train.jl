@@ -16,7 +16,7 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 	## or init randomly
 	# const m::Int64 = 100
 	d::Int64 = size(X_train[1], 2)
-	model::seq2seq{T} = init_seq2seq(T, m, d)
+	model::seq2seq{T} = init_seq2seq(T, m, d, MAX_OUTPUTS)
 
 	### sgd
 
@@ -32,7 +32,7 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 
 		for batch in 1:BATCH_SIZE
 			r::Int64 = rand(1:n)
-			(f::T, grad::seq2seq_grad{T}) = bptt(X_train[r], X_train[r], model, MAX_OUTPUTS)
+			(f::T, grad::seq2seq_grad{T}) = bptt(X_train[r], X_train[r], model)
 			f_sum += f
 			grad_sum = sumGrads(grad_sum, grad)
 		end
