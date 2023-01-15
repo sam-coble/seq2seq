@@ -52,6 +52,23 @@ function encode(X::Vector{Vector{T}}, model::seq2seq{T}) where T <: AbstractFloa
 	return a
 end
 
+function decode(b0::Vector{T}, model::seq2seq{T}) where T <: AbstractFloat
+	BOS = zeros(T, model.d)
+	BOS[model.d - 1] = 1
+	BOS
+	y = Vector{T}()
+	push!(y, BOS)
+	b = b0
+	while true
+		b = model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb
+		push!(y, model.yb * b + model.by)
+		if findmax(y[lastindex(y)])[2] == model.d
+			break
+		end
+	end
+	return y
+end
+
 # Computes predictions for a set of examples X
 function predict(X, Waa, Wax, Wya, a0)
 	n = size(X, 1)
