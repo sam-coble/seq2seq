@@ -40,31 +40,21 @@ for i::Int32 in 1:MAX_ITERATIONS
 		grad_sum = sumGrads(grad_sum, grad)
 	end
 	global model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
-	
+
 	if i % Int32(round(MAX_ITERATIONS/30)) == 0
-		correct = 0
 		test_err = 0
-		yhat = predict(X_test, Waa, Wax, Wya, a0)
+		yhat = predict(X_test, model)
 		for j in 1:t
-			test_err += sum((yhat[j] - y_test[j,:]).^2)
-			if findmax(yhat[j])[2] - 1 == y_test_[j]
-				correct += 1
-			end
+			test_err += sum((yhat[j] - X_test[j,:]).^2)
 		end
 		test_err /= t
-		test_acc = correct/t
-		yhat = predict(X_train, Waa, Wax, Wya, a0)
-		correct = 0
+		yhat = predict(X_train, model)
 		train_err = 0
 		for j in 1:n
 			train_err += sum((yhat[j] - y_train[j,:]).^2)
-			if findmax(yhat[j])[2] - 1 == y_train_[j]
-				correct += 1
-			end
 		end
 		train_err /= n
-		train_acc = correct / n
-		@printf "ITERATION: %d\tTRAIN ACC: %f\tTEST ACC: %f\tTRAIN ERR: %f\tTEST ERR: %f\n" i train_acc test_acc train_err test_err
+		@printf "ITERATION: %d\tTRAIN ERR: %f\tTEST ERR: %f\n" i  train_err test_err
 	end
 end
 
