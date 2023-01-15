@@ -14,8 +14,8 @@ function dhy(z)
 end
 
 mutable struct seq2seq{T<:AbstractFloat}
-	m::Integer,
-	d::Integer,
+	const m::Int16,
+	const d::Int16,
 	a0::Vector{T}
 	Waa::Array{T, 2}
 	Wax::Array{T, 2}
