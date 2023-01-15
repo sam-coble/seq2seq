@@ -13,18 +13,29 @@ function dhy(z)
 	return (sech.(z)).^2
 end
 
+mutable struct seq2seq{T<:AbstractFloat}
+	a0::Vector{T}
+	Waa::Array{T, 2}
+	Wax::Array{T, 2}
+	ba::T
+	Wbb::Array{T, 2}
+	Wby::Array{T, 2}
+	bb::T
+	Wyb::Array{T, 2}
+	by::T
+end
 
-function init_seq2seq(m, d)
-	return (
-		randn(m), 		# a0
-		randn(m, m), 	# Waa
-		randn(m, d),	# Wax
-		randn(1)[1],	# ba
-		randn(m, m), 	# Wbb
-		randn(m, d), 	# Wby
-		randn(1)[1],	# bb
-		randn(d, m), 	# Wyb
-		randn(1)[1] 	# by
+function init_seq2seq(T, m, d) where T <: AbstractFloat
+	return seq2seq{T}(
+		randn(T, m), 	# a0
+		randn(T, m, m), # Waa
+		randn(T, m, d),	# Wax
+		randn(T, 1)[1],	# ba
+		randn(T, m, m), # Wbb
+		randn(T, m, d), # Wby
+		randn(T, 1)[1],	# bb
+		randn(T, d, m), # Wyb
+		randn(T, 1)[1] 	# by
 	)
 
 end
