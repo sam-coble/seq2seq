@@ -14,6 +14,8 @@ function dhy(z)
 end
 
 mutable struct seq2seq{T<:AbstractFloat}
+	m::Real,
+	d::Real,
 	a0::Vector{T}
 	Waa::Array{T, 2}
 	Wax::Array{T, 2}
@@ -27,6 +29,8 @@ end
 
 function init_seq2seq(T, m, d) where T <: AbstractFloat
 	return seq2seq{T}(
+		m,
+		d,
 		randn(T, m), 	# a0
 		randn(T, m, m), # Waa
 		randn(T, m, d),	# Wax
