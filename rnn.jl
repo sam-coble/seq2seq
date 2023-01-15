@@ -37,7 +37,15 @@ function init_seq2seq(T, m, d) where T <: AbstractFloat
 		randn(T, d, m), # Wyb
 		randn(T, 1)[1] 	# by
 	)
+end
 
+function encode(X::Vector{Vector{T}}, model::seq2seq{T}) where T <: AbstractFloat
+	(k, d) = size(X)
+	a = model.a0
+	for layer in 1:k
+		a = model.Waa * a + model.Wax * X[layer,:]
+	end
+	return a
 end
 
 # Computes predictions for a set of examples X
