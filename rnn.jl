@@ -1,28 +1,28 @@
 include("misc.jl")
 
-function ha(z::T) where T <: AbstractFloat
+function ha(z::T)::T where T <: AbstractFloat
 	return tanh(z)
 end
-function dha(z::T) where T <: AbstractFloat
+function dha(z::T)::T where T <: AbstractFloat
 	return (sech(z))^2
 end
-function hb(z::T) where T <: AbstractFloat
+function hb(z::T)::T where T <: AbstractFloat
 	return tanh(z)
 end
-function dhb(z::T) where T <: AbstractFloat
+function dhb(z::T)::T where T <: AbstractFloat
 	return (sech(z))^2
 end
-function hy(z::T) where T <: AbstractFloat
+function hy(z::T)::T where T <: AbstractFloat
 	return tanh(z)
 end
-function dhy(z::T) where T <: AbstractFloat
+function dhy(z::T)::T where T <: AbstractFloat
 	return (sech(z))^2
 end
 
 
-mutable struct seq2seq{T<:AbstractFloat}
-	const m::Int32
-	const d::Int32
+struct seq2seq{T<:AbstractFloat}
+	m::Int32
+	d::Int32
 	a0::Vector{T}
 	Waa::Matrix{T}
 	Wax::Matrix{T}
@@ -75,7 +75,7 @@ function emptyGrad(::Type{T}, m::Int32, d::Int32)::seq2seq_grad{T} where T <: Ab
 	)
 end
 
-function sumGrads(::Type{T}, g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T} where T <: AbstractFloat
+function sumGrads(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T} where T <: AbstractFloat
 	return seq2seq_grad{T}(
 		g1.a0 + g2.a0,
 		g1.Waa + g2.Waa,
@@ -88,7 +88,7 @@ function sumGrads(::Type{T}, g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_
 		g1.by + g2.by
 	)
 end
-function subGradient(::Type{T}, model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq{T} where T <: AbstractFloat
+function subGradient(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		model.m,
 		model.d,
