@@ -21,8 +21,8 @@ end
 
 
 struct seq2seq{T<:AbstractFloat}
-	m::Int32
-	d::Int32
+	m::Int64
+	d::Int64
 	a0::Vector{T}
 	Waa::Matrix{T}
 	Wax::Matrix{T}
@@ -46,7 +46,7 @@ struct seq2seq_grad{T<:AbstractFloat}
 	by::Vector{T}
 end
 
-function init_seq2seq(::Type{T}, m::Int32, d::Int32)::seq2seq{T} where T <: AbstractFloat
+function init_seq2seq(::Type{T}, m::Int64, d::Int64)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
@@ -61,7 +61,7 @@ function init_seq2seq(::Type{T}, m::Int32, d::Int32)::seq2seq{T} where T <: Abst
 		randn(T, d) 	# by
 	)
 end
-function emptyGrad(::Type{T}, m::Int32, d::Int32)::seq2seq_grad{T} where T <: AbstractFloat
+function emptyGrad(::Type{T}, m::Int64, d::Int64)::seq2seq_grad{T} where T <: AbstractFloat
 	return seq2seq_grad{T}(
 		zeros(T, m),
 		zeros(T, m, m),
@@ -137,8 +137,8 @@ end
 
 # Computes squared error (f) and gradient (g)
 # for a single training example (x,y)
-function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)::Tuple{T, seq2seq_grad{T}} where T <: AbstractFloat
-	local k::Int32 = size(x, 1)
+function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int64)::Tuple{T, seq2seq_grad{T}} where T <: AbstractFloat
+	local k::Int64 = size(x, 1)
 
 	### Forward propagation
 	## over encoder
@@ -164,7 +164,7 @@ function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)
 	push!(yhat, zyhat[1])
 
 	## over decoder
-	outputs::Int32 = 0
+	outputs::Int64 = 0
 	while true
 		push!(zb, model.Wbb * b[lastindex(b)] + model.Wby * yhat[lastindex(yhat)] + model.bb)
 		push!(b, hb.(zb[lastindex(zb)]))
