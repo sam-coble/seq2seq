@@ -134,7 +134,7 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: 
 			break
 		end
 	end
-	return y
+	return y[2:end]
 end
 
 # Computes predictions for a set of examples X

@@ -38,7 +38,7 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 		end
 		model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
 
-		if i % Int64(round(MAX_ITERATIONS/30)) == 0
+		if i % Int64(round(MAX_ITERATIONS/30)) == 1
 			test_err::T = 0
 			yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
 			for j in 1:t
