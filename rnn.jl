@@ -14,8 +14,8 @@ function dhy(z)
 end
 
 mutable struct seq2seq{T<:AbstractFloat}
-	m::Real,
-	d::Real,
+	m::Integer,
+	d::Integer,
 	a0::Vector{T}
 	Waa::Array{T, 2}
 	Wax::Array{T, 2}
@@ -27,7 +27,7 @@ mutable struct seq2seq{T<:AbstractFloat}
 	by::T
 end
 
-function init_seq2seq(T::DataType, m::Int, d::Int)::seq2seq{T} where T <: AbstractFloat
+function init_seq2seq(T::DataType, m::Integer, d::Integer)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
@@ -71,7 +71,7 @@ end
 
 # Computes predictions for a set of examples X
 function predict(X::Vector{Array{T, 2}}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
-	
+	return decode.(encode.(X, model), model)
 end
 
 # Computes squared error (f) and gradient (g)
