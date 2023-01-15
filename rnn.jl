@@ -23,6 +23,7 @@ end
 struct seq2seq{T<:AbstractFloat}
 	m::Int64
 	d::Int64
+	MAX_OUTPUTS::Int64
 	a0::Vector{T}
 	Waa::Matrix{T}
 	Wax::Matrix{T}
@@ -46,10 +47,11 @@ struct seq2seq_grad{T<:AbstractFloat}
 	by::Vector{T}
 end
 
-function init_seq2seq(::Type{T}, m::Int64, d::Int64)::seq2seq{T} where T <: AbstractFloat
+function init_seq2seq(::Type{T}, m::Int64, d::Int64, MAX_OUTPUTS::Int64)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
+		MAX_OUTPUTS,
 		randn(T, m), 	# a0
 		randn(T, m, m), # Waa
 		randn(T, m, d),	# Wax
@@ -92,6 +94,7 @@ function subGradient(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2se
 	return seq2seq{T}(
 		model.m,
 		model.d,
+		model.MAX_OUTPUTS,
 		model.a0 + g.a0 * stepSize,
 		model.Waa + g.Waa * stepSize,
 		model.Wax + g.Wax * stepSize,
@@ -120,10 +123,14 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: 
 	y = Vector{Vector{T}}()
 	push!(y, BOS)
 	b = b0
+	outputs::Int64 = 0
 	while true
 		b = hb.( model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb )
 		push!(y, hy.( model.Wyb * b + model.by ))
+		outputs += 1
 		if findmax(y[lastindex(y)])[2] == model.d
+			break
+		elseif outputs >= MAX_OUTPUTS
 			break
 		end
 	end
@@ -138,7 +145,7 @@ end
 
 # Computes squared error (f) and gradient (g)
 # for a single training example (x,y)
-function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int64)::Tuple{T, seq2seq_grad{T}} where T <: AbstractFloat
+function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T})::Tuple{T, seq2seq_grad{T}} where T <: AbstractFloat
 	local k::Int64 = size(x, 1)
 
 	### Forward propagation
@@ -174,7 +181,7 @@ function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T}, MAX_OUTPUTS::Int64)
 		outputs += 1
 		if findmax(yhat[lastindex(yhat)])[2] == model.d - 1
 			break
-		elseif outputs >= MAX_OUTPUTS
+		elseif outputs >= model.MAX_OUTPUTS
 			break
 		end
 	end
