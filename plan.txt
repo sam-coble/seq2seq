@@ -1,18 +1,18 @@
 
 
 NETWORK:
+                                       y1    y2          EOS (or timeout)
+                                       ^     ^            ^
+                                       |     |            |
+a0 -> a1 -> a2 -> ... -> ak/b0(lvr) -> b1 -> b2 -> ... -> bl
+      ^     ^            ^             ^     ^            ^
+      |     |            |             |     |            |
+      x1    x2          EOS           BOS?   y1?          yl-1?
 
-      f        f        f      f        g
-START -> STATE -> STATE -> ... -> STATE -> CLASSES
-           ^        ^               ^
-           |        |               |
-         INPUT    INPUT           INPUT
+x/y = 28-d (a-z,BOS,EOS)
+a = 100-d
 
-INPUT = 96-d
-STATE = 5-d
-START = 0 vector? 
-OUTPUT = 2 (text, code)
 
-f = (96 + 5 + 1) * (5) matrix = 510 parameters
-g = 5 * 2 matrix = 10 parameters
-
+ai = Waa(ai-1) + Wax(xi)
+bi = Wbb(bi-1) + Wby(yi-1)?
+yi = Wyb(bi)
