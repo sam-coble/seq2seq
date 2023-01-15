@@ -19,8 +19,8 @@ function dhy(T::DataType, z::Vector{T})::Vector{T} where T <: AbstractFloat
 end
 
 mutable struct seq2seq{T<:AbstractFloat}
-	const m::Int16,
-	const d::Int16,
+	const m::Int32,
+	const d::Int32,
 	a0::Vector{T}
 	Waa::Matrix{T}
 	Wax::Matrix{T}
@@ -73,7 +73,7 @@ function emptyGrad(T::DataType, m::Int32, d::Int32)::seq2seq_grad{T} where T <: 
 	)
 end
 
-function addGradients(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
+function sumGrads(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
 	return seq2seq_grad{T}(
 		g1.a0 + g2.a0,
 		g1.Waa + g2.Waa,
@@ -86,19 +86,19 @@ function addGradients(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
 		g1.by + g2.by
 	)
 end
-function addGradent(model::seq2seq{T}, g::seq2seq_grad{T})::seq2seq{T}
+function subGradent(model::seq2seq{T}, g::seq2seq_grad{T}, stepSize::T)::seq2seq{T}
 	return seq2seq{T}(
 		model.m,
 		model.d,
-		model.a0 + g.a0,
-		model.Waa + g.Waa,
-		model.Wax + g.Wax,
-		model.ba + g.ba,
-		model.Wbb + g.Wbb,
-		model.Wby + g.Wby,
-		model.bb + g.bb,
-		model.Wyb + g.Wyb,
-		model.by + g.by
+		model.a0 + g.a0 * stepSize,
+		model.Waa + g.Waa * stepSize,
+		model.Wax + g.Wax * stepSize,
+		model.ba + g.ba * stepSize,
+		model.Wbb + g.Wbb * stepSize,
+		model.Wby + g.Wby * stepSize,
+		model.bb + g.bb * stepSize,
+		model.Wyb + g.Wyb * stepSize,
+		model.by + g.b * stepSizey
 	)
 end
 
@@ -135,7 +135,7 @@ end
 
 # Computes squared error (f) and gradient (g)
 # for a single training example (x,y)
-function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int16)::seq2seq_grad{T} where T <: AbstractFloat
+function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int32)::seq2seq_grad{T} where T <: AbstractFloat
 	const k = size(x, 1)
 
 	### Forward propagation
@@ -162,7 +162,7 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int16)
 	push!(yhat, zyhat[1])
 
 	## over decoder
-	outputs::Int16 = 0
+	outputs::Int32 = 0
 	while true
 		push!(zb, model.Wbb * b[lastindex(b)] + model.by * yhat[lastindex(yhat)] + model.bb)
 		push!(b, hb(zb[lastindex(zb)]))
