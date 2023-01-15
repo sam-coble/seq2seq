@@ -17,11 +17,13 @@ include("rnn.jl")
 
 
 ## or init randomly
-model::seq2seq{TYPE} = init_seq2seq(TYPE, 100, 28)
+const m::Int32 = 100
+const d::Int32 = 28
+model::seq2seq{TYPE} = init_seq2seq(TYPE, m, d)
 
 ### sgd
 
-
+const MAX_OUTPUTS::Int32 = 12
 const BATCH_SIZE::Int32 = 50
 const MAX_ITERATIONS::Int32 = Int32(round(100000/BATCH_SIZE))
 const STEP_SIZE::TYPE = 7e-2
@@ -29,26 +31,16 @@ const STEP_SIZE::TYPE = 7e-2
 @printf "RUNNING WITH STEP_SIZE=%f, BATCH_SIZE=%d, ITERATIONS=%d" STEP_SIZE BATCH_SIZE MAX_ITERATIONS
 for i::Int32 in 1:MAX_ITERATIONS
 	f_sum = 0
-	gWaa_sum = zeros(TYPE, size(Waa))
-	gWax_sum = zeros(TYPE, size(Wax))
-	gWya_sum = zeros(TYPE, size(Wya))
-	ga0_sum = zeros(TYPE, size(a0))
+	grad_sum::seq2seq_grad{TYPE} = emptyGrad(TYPE, m, d)
 
 	for batch in 1:BATCH_SIZE
 		r = rand(1:n)
-		(f, gWaa, gWax, gWya, ga0) = bptt(Waa, Wax, Wya, a0, X_train[r], y_train[r,:])
+		(f::TYPE, grad::seq2seq_grad{TYPE}) = bptt(X_train[r], X_train[r], model, MAX_OUTPUTS)
 		f_sum += f
-		gWaa_sum += gWaa
-		gWax_sum += gWax
-		gWya_sum += gWya
-		ga0_sum += ga0
+		grad_sum = sumGrads(grad_sum, grad)
 	end
-	# r = rand(1:n)
-	# (f, gWaa, gWax, gWya, ga0) = bptt(Waa, Wax, Wya, a0, X_train[r], y_train[r,:])
-	global Waa = Waa - STEP_SIZE * gWaa_sum / BATCH_SIZE
-	global Wax = Wax - STEP_SIZE * gWax_sum / BATCH_SIZE
-	global Wya = Wya - STEP_SIZE * gWya_sum / BATCH_SIZE
-	global a0 = a0 - STEP_SIZE * ga0_sum / BATCH_SIZE
+	global model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
+	
 	if i % Int32(round(MAX_ITERATIONS/30)) == 0
 		correct = 0
 		test_err = 0

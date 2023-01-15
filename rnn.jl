@@ -44,7 +44,7 @@ struct seq2seq_grad{T<:AbstractFloat}
 	by::Vector{T}
 end
 
-function init_seq2seq(T::DataType, m::Integer, d::Integer)::seq2seq{T} where T <: AbstractFloat
+function init_seq2seq(T::DataType, m::Int32, d::Int32)::seq2seq{T} where T <: AbstractFloat
 	return seq2seq{T}(
 		m,
 		d,
@@ -191,7 +191,12 @@ function bptt(x::Vector{T}, y::Vector{T}, model::seq2seq{T}, MAX_OUTPUTS::Int16)
 			r[i] = yhat[i+1] - y[i] 
 		end
 	end
-	const f = 0.5*sum(r.*r) # squared residual error
+
+	# squared residual error
+	f::T = 0
+	for i in 1:size(r)
+		f += 0.5 * sum(r[i].*r[i])
+	end
 
 
 	### Backpropagation
