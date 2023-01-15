@@ -59,6 +59,19 @@ function init_seq2seq(T::DataType, m::Integer, d::Integer)::seq2seq{T} where T <
 		randn(T, d) 	# by
 	)
 end
+function emptyGrad(T::DataType, m::Int32, d::Int32)::seq2seq_grad{T} where T <: AbstractFloat
+	return seq2seq_grad{T}(
+		zeros(T, m),
+		zeros(T, m, m),
+		zeros(T, m, d),
+		zeros(T, m)
+		zeros(T, m, m)
+		zeros(T, m, d)
+		zeros(T, m),
+		zeros(T, d, m),
+		zeros(T, d)
+	)
+end
 
 function addGradients(g1::seq2seq_grad{T}, g2::seq2seq_grad{T})::seq2seq_grad{T}
 	return seq2seq_grad{T}(
