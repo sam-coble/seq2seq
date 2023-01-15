@@ -138,9 +138,32 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: 
 end
 
 # Computes predictions for a set of examples X
-function predict(X::Vector{Matrix{T}}, model::seq2seq{T})::Vector{Vector{T}} where T <: AbstractFloat
+function predict(X::Vector{Matrix{T}}, model::seq2seq{T})::Vector{Vector{Vector{T}}} where T <: AbstractFloat
 	# return decode.(encode.(X, model), model)
 	return broadcast(x -> decode(encode(x, model), model), X)
+end
+
+function calculateResidualError(yhat::Vector{Vector{T}}, y::Matrix{T})::Tuple{T, Vector{Vector{T}}} where T <: AbstractFloat
+	local r::Vector{Vector{T}} = Vector{Vector{T}}(undef, size(yhat, 1))
+	local EOS::Vector{T} = begin
+		EOS = zeros(T, size(y, 2)) # d
+		EOS[size(y, 2)] = 1
+		EOS
+	end
+	for i in 1:size(yhat, 1)
+		if i > size(y, 1)
+			r[i] = yhat[i] - EOS
+		else
+			r[i] = yhat[i] - y[i,:] 
+		end
+	end
+
+	# squared residual error
+	f::T = 0
+	for i in 1:size(r, 1)
+		f += 0.5 * sum(r[i].*r[i])
+	end
+	return (f, r)
 end
 
 # Computes squared error (f) and gradient (g)
@@ -188,25 +211,7 @@ function bptt(x::Matrix{T}, y::Matrix{T}, model::seq2seq{T})::Tuple{T, seq2seq_g
 
 
 	### calculate error
-	local r::Vector{Vector{T}} = Vector{Vector{T}}(undef, size(yhat, 1) - 1)
-	local EOS::Vector{T} = begin
-		EOS = zeros(T, model.d)
-		EOS[model.d] = 1
-		EOS
-	end
-	for i in 1:(size(yhat, 1)-1) # to account for yhat0
-		if i > size(y, 1)
-			r[i] = yhat[i+1] - EOS
-		else
-			r[i] = yhat[i+1] - y[i,:] 
-		end
-	end
-
-	# squared residual error
-	f::T = 0
-	for i in 1:size(r, 1)
-		f += 0.5 * sum(r[i].*r[i])
-	end
+	(f::T, r::Vector{Vector{T}}) = calculateResidualError(yhat[2:end], y) # to account for yhat0
 
 
 	### Backpropagation

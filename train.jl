@@ -40,15 +40,15 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 
 		if i % Int64(round(MAX_ITERATIONS/30)) == 0
 			test_err::T = 0
-			yhat::Vector{Vector{T}} = predict(X_test, model)
+			yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
 			for j in 1:t
-				test_err += sum((yhat[j] - X_test[j,:]).^2)
+				test_err += calculateResidualError(yhat[j], X_test[j])[1]
 			end
 			test_err /= t
 			yhat = predict(X_train, model)
 			train_err::T = 0
 			for j in 1:n
-				train_err += sum((yhat[j] - X_train[j,:]).^2)
+				train_err += calculateResidualError(yhat[j], X_train[j])[1]
 			end
 			train_err /= n
 			@printf "ITERATION: %d\tTRAIN ERR: %f\tTEST ERR: %f\n" i  train_err test_err
