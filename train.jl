@@ -30,7 +30,7 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 		f_sum::T = 0
 		grad_sum::seq2seq_grad{T} = emptyGrad(T, m, d)
 
-		for batch in 1:BATCH_SIZE
+		Threads.@threads for batch in 1:BATCH_SIZE
 			r::Int64 = rand(1:n)
 			(f::T, grad::seq2seq_grad{T}) = bptt(X_train[r], X_train[r], model)
 			f_sum += f
@@ -41,13 +41,13 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 		if i % Int64(round(MAX_ITERATIONS/30)) == 1
 			test_err::T = 0
 			yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
-			for j in 1:t
+			Threads.@threads for j in 1:t
 				test_err += calculateResidualError(yhat[j], X_test[j])[1]
 			end
 			test_err /= t
 			yhat = predict(X_train, model)
 			train_err::T = 0
-			for j in 1:n
+			Threads.@threads for j in 1:n
 				train_err += calculateResidualError(yhat[j], X_train[j])[1]
 			end
 			train_err /= n
@@ -58,4 +58,4 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 	@show model
 end
 
-train(Float64, 300, 10, 7e-2, 12, 100)
+train(Float64, 300, 64, 7e-2, 12, 100)
