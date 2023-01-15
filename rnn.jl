@@ -122,7 +122,7 @@ function decode(b0::Vector{T}, model::seq2seq{T})::Vector{Vector{T}} where T <: 
 	b = b0
 	while true
 		b = hb.( model.Wbb * b + model.Wby * y[lastindex(y)] + model.bb )
-		push!(y, hy.( model.yb * b + model.by ))
+		push!(y, hy.( model.Wyb * b + model.by ))
 		if findmax(y[lastindex(y)])[2] == model.d
 			break
 		end
