@@ -32,13 +32,13 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 			# @printf "CALCULATING ERROR:\n"
 			local test_err::T = 0
 			local yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
-			Threads.@threads for j in 1:t
+			for j in 1:t
 				test_err += calculateResidualError(yhat[j], X_test[j])[1]
 			end
 			test_err /= t
 			yhat = predict(X_train, model)
 			local train_err::T = 0
-			Threads.@threads for j in 1:n
+			for j in 1:n
 				train_err += calculateResidualError(yhat[j], X_train[j])[1]
 			end
 			train_err /= n
