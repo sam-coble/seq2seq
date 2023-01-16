@@ -28,22 +28,22 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 
 	@printf "RUNNING WITH STEP_SIZE=%f, BATCH_SIZE=%d, ITERATIONS=%d, m=%d, d=%d\n" STEP_SIZE BATCH_SIZE MAX_ITERATIONS m d
 	for i::Int64 in 1:MAX_ITERATIONS
-		if i % Int64(round(MAX_ITERATIONS/5)) == 1
-			# @printf "CALCULATING ERROR:\n"
-			local test_err::T = 0
-			local yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
-			for j in 1:t
-				test_err += calculateResidualError(yhat[j], X_test[j])[1]
-			end
-			test_err /= t
-			yhat = predict(X_train, model)
-			local train_err::T = 0
-			for j in 1:n
-				train_err += calculateResidualError(yhat[j], X_train[j])[1]
-			end
-			train_err /= n
-			@printf "ITERATION: %d\tTRAIN ERR: %f\tTEST ERR: %f\n" (i-1)  train_err test_err
-		end
+		# if i % Int64(round(MAX_ITERATIONS/5)) == 1
+		# 	# @printf "CALCULATING ERROR:\n"
+		# 	local test_err::T = 0
+		# 	local yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
+		# 	for j in 1:t
+		# 		test_err += calculateResidualError(yhat[j], X_test[j])[1]
+		# 	end
+		# 	test_err /= t
+		# 	yhat = predict(X_train, model)
+		# 	local train_err::T = 0
+		# 	for j in 1:n
+		# 		train_err += calculateResidualError(yhat[j], X_train[j])[1]
+		# 	end
+		# 	train_err /= n
+		# 	@printf "ITERATION: %d\tTRAIN ERR: %f\tTEST ERR: %f\n" (i-1)  train_err test_err
+		# end
 		local f_sum::T = 0
 		local grad_sum::seq2seq_grad{T} = emptyGrad(T, m, d)
 
@@ -55,10 +55,9 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 		end
 		model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
 	end
-	Ω
 	# @show model
 	save_object(outfile, model)
 	return model
 end
 
-const model = train(Float64, 3000, 64, 7e-3, 12, 100, "model.jld2")
+const model = train(Float64, 300, 32, 7e-3, 12, 100, "model.jld2")
