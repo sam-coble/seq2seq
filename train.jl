@@ -28,8 +28,8 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 
 	@printf "RUNNING WITH STEP_SIZE=%f, BATCH_SIZE=%d, ITERATIONS=%d, m=%d, d=%d\n" STEP_SIZE BATCH_SIZE MAX_ITERATIONS m d
 	for i::Int64 in 1:MAX_ITERATIONS
-		if i % Int64(round(MAX_ITERATIONS/30)) == 1
-			@printf "CALCULATING ERROR:\n"
+		if i % Int64(round(MAX_ITERATIONS/5)) == 1
+			# @printf "CALCULATING ERROR:\n"
 			local test_err::T = 0
 			local yhat::Vector{Vector{Vector{T}}} = predict(X_test, model)
 			Threads.@threads for j in 1:t
@@ -55,9 +55,10 @@ function train(::Type{T}, MAX_ITERATIONS::Int64, BATCH_SIZE::Int64, STEP_SIZE::T
 		end
 		model = subGradient(model, grad_sum, STEP_SIZE / BATCH_SIZE)
 	end
-	return model
+	Ω
 	# @show model
 	save_object(outfile, model)
+	return model
 end
 
-const model = train(Float64, 300, 64, 7e-2, 12, 100, "model.jld2")
+const model = train(Float64, 3000, 64, 7e-3, 12, 100, "model.jld2")
